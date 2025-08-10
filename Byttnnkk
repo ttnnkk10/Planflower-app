@@ -1,0 +1,371 @@
+html = r"""<!doctype html>
+
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Window Garden — ต้นไม้หน้าต่าง</title>
+<style>
+:root{
+  --bg:#cfe9ff; --card:#ffffffee; --accent:#2b8a3e;
+}
+*{box-sizing:border-box; font-family: "Segoe UI", Roboto, "Noto Sans", system-ui; -webkit-tap-highlight-color: transparent;}
+body{margin:0; background:linear-gradient(180deg,#a8ddff 0%, #eaf7ff 60%); height:100vh; display:flex; align-items:center; justify-content:center;}
+.app{width:100%; max-width:900px; height:90vh; background:linear-gradient(180deg,#fff 0%, #f0fbff 100%); border-radius:16px; box-shadow:0 8px 30px rgba(20,40,60,0.15); overflow:hidden; display:flex; flex-direction:column;}
+.header{display:flex; align-items:center; justify-content:space-between; padding:12px 16px; gap:12px; background:linear-gradient(90deg,#ffffffaa,#f4ffffaa); border-bottom:1px solid rgba(0,0,0,0.05);}
+.logo{display:flex; align-items:center; gap:10px;}
+.logo .icon{width:44px; height:44px; background:linear-gradient(135deg,#ffd36b,#ff8ab6); border-radius:10px; display:flex; align-items:center; justify-content:center; color:white; font-weight:700; box-shadow:0 4px 8px rgba(0,0,0,0.08);}
+.controls{display:flex; gap:10px; align-items:center;}
+.btn{background:var(--accent); color:white; padding:8px 12px; border-radius:10px; border:none; font-weight:600; box-shadow:0 4px 10px rgba(43,138,62,0.18);}
+.small{padding:6px 10px; font-size:14px;}
+.info{background:var(--card); padding:8px 12px; border-radius:10px; display:flex; gap:10px; align-items:center; box-shadow:0 6px 18px rgba(10,20,30,0.06);}
+.board{flex:1; display:flex; gap:12px; padding:16px;}
+.left, .right{flex:1; border-radius:12px; overflow:hidden; background:linear-gradient(180deg,#ffffff,#f8fffb); box-shadow:inset 0 1px 0 #ffffffaa;}
+.left{display:flex; flex-direction:column; padding:12px; align-items:center; gap:12px;}
+.window-view{flex:1; width:100%; border-radius:10px; position:relative; overflow:hidden; background:linear-gradient(180deg,#9fd1ff,#eaf6ff); display:flex; align-items:flex-end; justify-content:center; padding-bottom:40px;}
+.scene{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+.sun, .cloud, .snow{position:absolute; transition:all 1s linear;}
+.sun{width:120px; height:120px; border-radius:50%; background: radial-gradient(circle at 30% 30%, #fff7b0, #ffd36b); top:12%; right:12%;}
+.cloud{width:180px; height:80px; background:linear-gradient(#fff,#eef); border-radius:40px; top:20%; left:12%; opacity:0.95;}
+.rain{position:absolute; inset:0; pointer-events:none;}
+.rain span{position:absolute; top:0; width:2px; height:14px; background:linear-gradient(#9fd, #6be); opacity:0.8; animation:fall 0.9s linear infinite;}
+@keyframes fall{to{transform:translateY(120%); opacity:0}}
+.snowflake{position:absolute; font-size:18px; animation:snow 4s linear infinite;}
+@keyframes snow{to{transform:translateY(120%)}}
+.ground{position:absolute; bottom:0; width:110%; height:160px; background:linear-gradient(180deg,#d3f0c7,#7dc17a); transform:translateY(8%); border-top-left-radius:50% 30%; border-top-right-radius:50% 30%;}
+.pots{position:relative; display:flex; gap:18px; z-index:30; padding:0 20px; transform:translateY(20px);}
+.pot{width:140px; height:130px; background:linear-gradient(180deg,#6b5c4a,#4a3b2b); border-radius:14px 14px 8px 8px; display:flex; align-items:flex-start; justify-content:center; padding-top:12px; position:relative; cursor:pointer; box-shadow:0 10px 20px rgba(0,0,0,0.12);}
+.pot .soil{width:120px; height:36px; background:linear-gradient(180deg,#513f35,#3a2b22); border-radius:8px;}
+.plant{position:absolute; bottom:38px; display:flex; flex-direction:column; align-items:center; gap:4px; transition:all 0.6s linear;}
+.leaves{width:6px; height:6px; background:green; border-radius:50%;}
+.stage-seed{width:12px; height:12px; background:#5b3; border-radius:50%;}
+.stage-sprout{height:34px;}
+.stage-grow{height:70px;}
+.right{width:320px; padding:12px; display:flex; flex-direction:column; gap:10px;}
+.toolbox{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+.card{background:var(--card); padding:10px; border-radius:10px; box-shadow:0 8px 20px rgba(10,30,60,0.06);}
+.shop-list{display:flex; gap:8px; flex-direction:column;}
+.seed{display:flex; gap:10px; align-items:center; padding:8px; border-radius:10px; cursor:pointer; border:1px solid #eee;}
+.seed img{width:46px; height:46px; border-radius:8px;}
+.small-muted{font-size:12px; color:#666;}
+.clock{display:flex; align-items:center; gap:8px; font-weight:700;}
+.water-meter{width:200px; height:12px; background:#e6f7ff; border-radius:10px; overflow:hidden;}
+.water-meter > i{display:block; height:100%; background:linear-gradient(90deg,#6ec6ff,#3b9dff); width:60%;}
+.footer{padding:10px 16px; display:flex; justify-content:space-between; align-items:center; background:linear-gradient(90deg,#ffffff00,#f4ffff00);}
+.modal{position:fixed; inset:0; background:rgba(5,10,20,0.4); display:flex; align-items:center; justify-content:center; z-index:60;}
+.modal .sheet{background:white; padding:16px; border-radius:12px; width:90%; max-width:560px;}
+.hidden{display:none;}
+/* responsive */
+@media (max-width:720px){
+  .board{flex-direction:column;}
+  .right{width:100%;}
+  .pots{transform:translateY(8px); gap:12px;}
+  .pot{width:110px; height:100px;}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="header">
+    <div class="logo">
+      <div class="icon">WG</div>
+      <div>
+        <div style="font-weight:800">Window Garden</div>
+        <div class="small-muted" style="font-size:12px">สวนหน้าต่างเล็ก ๆ</div>
+      </div>
+    </div>
+    <div class="controls">
+      <div class="info card" id="coinsDisp">เหรียญ: <strong id="coins">∞</strong></div>
+      <div class="info card clock" id="clockDisp">เวลา: <span id="timeLabel">06:00</span></div>
+      <button class="btn small" id="shopBtn">ร้านค้า</button>
+    </div>
+  </div>  <div class="board">
+    <div class="left">
+      <div class="window-view card" id="windowView">
+        <div class="scene" id="scene">
+          <div class="sun" id="sun"></div>
+          <div class="cloud" id="cloud" style="left:12%"></div>
+          <div class="rain" id="rain"></div>
+          <div class="snow" id="snow" style="display:none"></div>
+          <div class="ground"></div>
+        </div><div class="pots" id="pots">
+      <div class="pot" data-slot="0"><div class="soil"></div><div class="plant" data-stage="0"></div></div>
+      <div class="pot" data-slot="1"><div class="soil"></div><div class="plant" data-stage="0"></div></div>
+      <div class="pot" data-slot="2"><div class="soil"></div><div class="plant" data-stage="0"></div></div>
+    </div>
+  </div>
+
+  <div style="display:flex; gap:10px; margin-top:10px; width:100%; justify-content:center;">
+    <button class="btn small" id="waterBtn">รดน้ำ (ใช้ 1)</button>
+    <button class="btn small" id="sprayBtn">สเปรย์ (ใช้ 0.5)</button>
+    <div class="card" style="display:flex; align-items:center; gap:8px;">
+      <div class="small-muted">น้ำ:</div>
+      <div class="water-meter"><i id="waterLevel" style="width:80%"></i></div>
+      <button class="small" id="refillBtn" style="background:#ffb74d; color:#2b2b2b; border:none; border-radius:8px;">เติมน้ำ</button>
+    </div>
+  </div>
+</div>
+
+<div class="right">
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div><strong>สภาพอากาศ</strong><div class="small-muted">เปลี่ยนตามฤดูกาลและเวลา</div></div>
+      <select id="weatherSelect">
+        <option value="sunny">แดด</option>
+        <option value="rain">ฝน</option>
+        <option value="snow">หิมะ</option>
+        <option value="cloud">เมฆ</option>
+      </select>
+    </div>
+    <div style="margin-top:8px;">
+      <label class="small-muted">ความเร็วเวลา (x)</label>
+      <input type="range" id="timeSpeed" min="1" max="60" value="8" />
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <strong>ร้านขายเมล็ด</strong>
+      <div class="small-muted">เหรียญไม่จำกัด</div>
+    </div>
+    <div class="shop-list" id="shopList" style="margin-top:8px">
+      <!-- seeds populated by JS -->
+    </div>
+  </div>
+
+  <div class="card">
+    <strong>คำแนะนำ</strong>
+    <div class="small-muted" style="margin-top:6px">ซื้อเมล็ด → ปลูกที่กระถาง (แตะกระถาง) → รดน้ำหรือสเปรย์ → ต้นจะโตเร็วขึ้นเมื่อมีแดด</div>
+  </div>
+</div>
+
+  </div>  <div class="footer">
+    <div class="small-muted">ทดลองต้นแบบ — เปิดใน Chrome บนมือถือได้</div>
+    <div class="small-muted">เวอร์ชัน: 1.0</div>
+  </div>
+</div><!-- modal shop --><div class="modal hidden" id="shopModal">
+  <div class="sheet">
+    <h3>ร้านเมล็ดพันธุ์</h3>
+    <div class="shop-list" id="shopModalList"></div>
+    <div style="display:flex; justify-content:flex-end; margin-top:10px;">
+      <button class="btn" id="closeShop">ปิด</button>
+    </div>
+  </div>
+</div><script>
+const seeds = [
+  {id:'sunflower', name:'ทานตะวัน', desc:'ต้องการแดดมาก โตเร็ว', price:10, color1:'#ffd36b', color2:'#ff9aa2'},
+  {id:'mint', name:'มิ้นต์', desc:'ชอบร่ม รดน้ำปานกลาง', price:5, color1:'#7ef0c3', color2:'#2bd18b'},
+  {id:'pine', name:'สนเล็ก', desc:'ทนหนาว โตช้า', price:8, color1:'#bfe6ff', color2:'#6fb3ff'},
+  {id:'cactus', name:'ต้นกระบองเพชร', desc:'น้ำน้อยก็อยู่ได้', price:6, color1:'#ffd2a8', color2:'#ffa85a'},
+];
+
+const shopList = document.getElementById('shopList');
+const shopModalList = document.getElementById('shopModalList');
+const shopBtn = document.getElementById('shopBtn');
+const shopModal = document.getElementById('shopModal');
+const closeShop = document.getElementById('closeShop');
+const pots = document.querySelectorAll('.pot');
+const plantTemplate = (s)=>`
+  <div style="display:flex; gap:10px; align-items:center;">
+    <div style="width:46px;height:46px;border-radius:10px;background:linear-gradient(135deg,${s.color1},${s.color2});display:flex;align-items:center;justify-content:center;font-weight:700;color:#422">🌱</div>
+    <div style="flex:1">
+      <div style="font-weight:700">${s.name} <span class="small-muted" style="font-weight:600">(${s.price}c)</span></div>
+      <div class="small-muted">${s.desc}</div>
+    </div>
+    <button class="btn small buyBtn" data-id="${s.id}">ซื้อ</button>
+  </div>
+`;
+
+function populateShop(){
+  shopList.innerHTML = '';
+  shopModalList.innerHTML = '';
+  seeds.forEach(s=>{
+    const el = document.createElement('div'); el.className='seed card'; el.innerHTML=plantTemplate(s);
+    shopList.appendChild(el);
+    const el2 = document.createElement('div'); el2.className='seed'; el2.innerHTML=plantTemplate(s);
+    shopModalList.appendChild(el2);
+  });
+}
+populateShop();
+
+shopBtn.addEventListener('click', ()=> shopModal.classList.remove('hidden'));
+closeShop.addEventListener('click', ()=> shopModal.classList.add('hidden'));
+
+document.addEventListener('click', (e)=>{
+  if(e.target.classList.contains('buyBtn')){
+    const id = e.target.dataset.id;
+    const seed = seeds.find(x=>x.id===id);
+    // give seed to player (infinite coins, so always success)
+    player.inventory.push(seed);
+    alert('ซื้อสำเร็จ: ' + seed.name + ' (อยู่ในคลังของคุณ)');
+  }
+});
+
+// player state
+const player = { inventory: [], water:100, speed:8, weather:'sunny' };
+const waterLevelBar = document.getElementById('waterLevel');
+const refillBtn = document.getElementById('refillBtn');
+const waterBtn = document.getElementById('waterBtn');
+const sprayBtn = document.getElementById('sprayBtn');
+const timeLabel = document.getElementById('timeLabel');
+const timeSpeed = document.getElementById('timeSpeed');
+const weatherSelect = document.getElementById('weatherSelect');
+const scene = document.getElementById('scene');
+const rainEl = document.getElementById('rain');
+const snowEl = document.getElementById('snow');
+const sunEl = document.getElementById('sun');
+const cloudEl = document.getElementById('cloud');
+
+timeSpeed.addEventListener('input', ()=> player.speed = Number(timeSpeed.value));
+weatherSelect.addEventListener('change', ()=> { player.weather = weatherSelect.value; updateWeather(); });
+refillBtn.addEventListener('click', ()=> { player.water = 100; updateWater(); });
+
+function updateWater(){ waterLevelBar.style.width = player.water + '%'; }
+updateWater();
+
+// time system
+let virtualMinutes = 360; // 06:00
+function tick(){
+  virtualMinutes += player.speed; // speed multiplier (fast)
+  virtualMinutes %= 1440;
+  const hh = Math.floor(virtualMinutes/60).toString().padStart(2,'0');
+  const mm = Math.floor(virtualMinutes%60).toString().padStart(2,'0');
+  timeLabel.textContent = hh+':'+mm;
+  // adjust visuals by time
+  const hour = Number(hh);
+  if(hour>=6 && hour<12){ // morning
+    document.body.style.background = 'linear-gradient(180deg,#bfe9ff,#eaf7ff)';
+    sunEl.style.opacity = 1; sunEl.style.transform='translateY(0)'; sunEl.style.right='12%';
+  } else if(hour>=12 && hour<17){ // afternoon
+    document.body.style.background = 'linear-gradient(180deg,#ffe6b3,#fff3e6)';
+    sunEl.style.opacity = 1; sunEl.style.transform='translateY(0)'; sunEl.style.right='8%';
+  } else if(hour>=17 && hour<19){ // evening
+    document.body.style.background = 'linear-gradient(180deg,#ffd7f0,#e6f0ff)';
+    sunEl.style.opacity = 1; sunEl.style.transform='translateY(20px)'; sunEl.style.right='18%';
+  } else { // night
+    document.body.style.background = 'linear-gradient(180deg,#0b1b2b,#071827)';
+    sunEl.style.opacity = 0; cloudEl.style.opacity=0.9;
+  }
+  updateWeather();
+  // growth tick: small chance to grow if watered and sunny
+  pots.forEach(p=>{
+    const plant = p.querySelector('.plant');
+    const stage = Number(plant.dataset.stage);
+    if(stage>0){
+      const hasSun = (player.weather==='sunny' || (Number(hour)>=8 && Number(hour)<=17));
+      const waterFactor = plant.dataset.watered==='1' ? 1 : 0;
+      // increase growth meter stored in data-grow
+      let grow = Number(plant.dataset.grow || 0);
+      grow += (0.2 * (hasSun?1.2:0.6) * (waterFactor?1.2:0.4));
+      plant.dataset.grow = Math.min(100, grow);
+      // stage changes
+      if(grow > 70) plant.dataset.stage = '3';
+      else if(grow > 30) plant.dataset.stage = '2';
+      else plant.dataset.stage = '1';
+      renderPlant(plant);
+      // reset watered status so need rewater later
+      plant.dataset.watered = '0';
+    }
+  });
+}
+setInterval(tick, 1500); // tick every 1.5s
+
+// weather visuals
+function updateWeather(){
+  const w = player.weather;
+  // reset
+  rainEl.innerHTML=''; snowEl.style.display='none'; cloudEl.style.display='none';
+  if(w==='sunny'){ cloudEl.style.display='none'; sunEl.style.display='block'; }
+  if(w==='cloud'){ cloudEl.style.display='block'; sunEl.style.display='block'; }
+  if(w==='rain'){ cloudEl.style.display='block'; sunEl.style.display='none'; // create rain drops
+    for(let i=0;i<30;i++){ const s=document.createElement('span'); s.style.left=(Math.random()*100)+'%'; s.style.top=(Math.random()*-10)+'%'; s.style.animationDelay=(Math.random()*0.9)+'s'; rainEl.appendChild(s);}
+  }
+  if(w==='snow'){ snowEl.style.display='block'; sunEl.style.display='none';
+    for(let i=0;i<20;i++){ const f=document.createElement('div'); f.className='snowflake'; f.style.left=(Math.random()*100)+'%'; f.style.top=(Math.random()*-10)+'%'; f.textContent='❄'; snowEl.appendChild(f);}
+  }
+}
+
+// pot interactions: plant seeds when pot clicked, if player has seed
+pots.forEach(p=>{
+  p.addEventListener('click', ()=>{
+    const idx = p.dataset.slot;
+    const plant = p.querySelector('.plant');
+    if(plant.dataset.stage && Number(plant.dataset.stage)>0){
+      // open small panel to show plant
+      alert('กระถางนี้มีต้นไม้แล้ว');
+      return;
+    }
+    if(player.inventory.length===0){ alert('คลังว่าง — ไปซื้อเมล็ดในร้านได้'); return; }
+    // plant the first seed in inventory
+    const seed = player.inventory.shift();
+    plant.dataset.stage = '1';
+    plant.dataset.seed = seed.id;
+    plant.dataset.color1 = seed.color1;
+    plant.dataset.color2 = seed.color2;
+    plant.dataset.grow = 0;
+    plant.dataset.watered = '1';
+    renderPlant(plant);
+    alert('ปลูก ' + seed.name + ' เรียบร้อย');
+  });
+});
+
+// water and spray
+waterBtn.addEventListener('click', ()=>{
+  if(player.water < 8){ alert('น้ำไม่พอ — เติมน้ำก่อน'); return; }
+  player.water = Math.max(0, player.water - 8);
+  // water all plants a bit
+  pots.forEach(p=>{
+    const plant = p.querySelector('.plant');
+    if(Number(plant.dataset.stage)>0){ plant.dataset.watered = '1'; }
+  });
+  updateWater();
+});
+sprayBtn.addEventListener('click', ()=>{
+  if(player.water < 4){ alert('น้ำไม่พอ — เติมน้ำก่อน'); return; }
+  player.water = Math.max(0, player.water - 4);
+  // water random plant
+  const arr = Array.from(pots);
+  const p = arr[Math.floor(Math.random()*arr.length)];
+  const plant = p.querySelector('.plant');
+  if(Number(plant.dataset.stage)>0){ plant.dataset.watered = '1'; }
+  updateWater();
+});
+
+// render plants by stage
+function renderPlant(plant){
+  const stage = Number(plant.dataset.stage || 0);
+  const seed = plant.dataset.seed || '';
+  plant.innerHTML = '';
+  if(stage===0){ return; }
+  const c1 = plant.dataset.color1 || '#5b3';
+  const c2 = plant.dataset.color2 || '#2b8';
+  if(stage===1){
+    const s = document.createElement('div'); s.className='stage-seed'; s.style.background = 'radial-gradient(circle at 30% 30%,'+c1+','+c2+')';
+    plant.appendChild(s);
+  } else if(stage===2){
+    const spr = document.createElement('div'); spr.className='stage-sprout'; spr.style.width='8px'; spr.style.background='linear-gradient('+c1+','+c2+')'; spr.style.borderRadius='8px';
+    const leaf = document.createElement('div'); leaf.className='leaves'; leaf.style.width='30px'; leaf.style.height='18px'; leaf.style.background='linear-gradient(90deg,'+c1+','+c2+')'; leaf.style.borderRadius='20px';
+    plant.appendChild(spr); plant.appendChild(leaf);
+  } else {
+    const trunk = document.createElement('div'); trunk.style.width='26px'; trunk.style.height='70px'; trunk.style.background='linear-gradient(#4b2,#2a6)'; trunk.style.borderRadius='20px';
+    const leaf1 = document.createElement('div'); leaf1.className='leaves'; leaf1.style.width='80px'; leaf1.style.height='40px'; leaf1.style.background='linear-gradient(90deg,'+c1+','+c2+')'; leaf1.style.borderRadius='40px';
+    plant.appendChild(trunk); plant.appendChild(leaf1);
+  }
+}
+
+// small init: show a seed so user can plant quickly
+player.inventory.push(seeds[0]);
+updateWeather();
+
+// save/load (local)
+function saveState(){ const state = {inventory:player.inventory, plants:[]}; pots.forEach(p=>{ const plant = p.querySelector('.plant'); state.plants.push({stage:plant.dataset.stage||0, seed:plant.dataset.seed||'', grow:plant.dataset.grow||0}); }); localStorage.setItem('wg_state', JSON.stringify(state)); }
+function loadState(){ try{ const s = JSON.parse(localStorage.getItem('wg_state')); if(!s) return; player.inventory = s.inventory || player.inventory; s.plants.forEach((pl,i)=>{ const plant = pots[i].querySelector('.plant'); plant.dataset.stage = pl.stage; plant.dataset.seed = pl.seed; plant.dataset.grow = pl.grow; renderPlant(plant); }); }catch(e){} }
+loadState();
+window.addEventListener('beforeunload', saveState);
+</script></body>
+</html>
+"""
+path = "/mnt/data/plant_app.html"
+with open(path,"w",encoding="utf-8") as f:
+    f.write(html)
+print("Wrote file to:", path)
