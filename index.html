@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Planflower App</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to top, #d0f0c0, #a0d0ff);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    header {
+      padding: 10px;
+      text-align: center;
+      background: rgba(255,255,255,0.8);
+      width: 100%;
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+    #game {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .button {
+      padding: 10px 20px;
+      background: #ff69b4;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1em;
+      margin-top: 10px;
+    }
+    .shop, .garden {
+      display: none;
+      margin-top: 20px;
+    }
+    .item {
+      padding: 5px;
+      border: 1px solid #ccc;
+      margin: 5px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .pot {
+      width: 100px;
+      height: 100px;
+      background: saddlebrown;
+      border-radius: 0 0 10px 10px;
+      margin-top: 10px;
+      position: relative;
+    }
+    .plant {
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2em;
+    }
+    .weather {
+      font-size: 1.2em;
+      margin-top: 10px;
+    }
+    .clock {
+      font-size: 1em;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <header>Planflower App 🌸</header>
+  <div id="game">
+    <button class="button" onclick="startGame()">เริ่มเกม</button>
+    <div class="shop">
+      <h3>ร้านค้าเมล็ดพันธุ์ 🌱</h3>
+      <div class="item" onclick="buySeed('🌻')">เมล็ดทานตะวัน</div>
+      <div class="item" onclick="buySeed('🌷')">เมล็ดทิวลิป</div>
+      <div class="item" onclick="buySeed('🌼')">เมล็ดเดซี่</div>
+      <button class="button" onclick="goGarden()">ไปสวน</button>
+    </div>
+    <div class="garden">
+      <h3>สวนของคุณ 🪴</h3>
+      <div class="pot" id="pot"></div>
+      <div class="weather" id="weather"></div>
+      <div class="clock" id="clock"></div>
+      <button class="button" onclick="waterPlant()">รดน้ำ</button>
+      <button class="button" onclick="goShop()">ไปร้าน</button>
+    </div>
+  </div>
+<script>
+  let currentSeed = null;
+  let weatherList = ["☀️ แดดออก", "🌧️ ฝนตก", "❄️ หิมะ"];
+  let currentWeather = "";
+  let gameInterval;
+  let time = 0; // นาทีจำลอง
+
+  function startGame() {
+    document.querySelector(".button").style.display = "none";
+    document.querySelector(".shop").style.display = "block";
+    updateWeather();
+    gameInterval = setInterval(updateClock, 1000);
+  }
+
+  function buySeed(seed) {
+    currentSeed = seed;
+    alert("คุณซื้อ " + seed + " แล้ว!");
+  }
+
+  function goGarden() {
+    document.querySelector(".shop").style.display = "none";
+    document.querySelector(".garden").style.display = "block";
+    if (currentSeed) {
+      let pot = document.getElementById("pot");
+      pot.innerHTML = '<div class="plant">' + currentSeed + '</div>';
+    }
+  }
+
+  function goShop() {
+    document.querySelector(".garden").style.display = "none";
+    document.querySelector(".shop").style.display = "block";
+  }
+
+  function waterPlant() {
+    alert("คุณรดน้ำต้นไม้แล้ว 💧");
+  }
+
+  function updateWeather() {
+    currentWeather = weatherList[Math.floor(Math.random() * weatherList.length)];
+    document.getElementById("weather").textContent = "สภาพอากาศ: " + currentWeather;
+    setTimeout(updateWeather, 5000);
+  }
+
+  function updateClock() {
+    time += 10;
+    let hours = Math.floor(time / 60) % 24;
+    let minutes = time % 60;
+    let period = hours < 12 ? "AM" : "PM";
+    let displayHours = hours % 12;
+    if (displayHours === 0) displayHours = 12;
+    document.getElementById("clock").textContent = `เวลา: ${displayHours}:${minutes.toString().padStart(2, "0")} ${period}`;
+  }
+</script>
+</body>
+    </html>
